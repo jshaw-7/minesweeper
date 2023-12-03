@@ -176,19 +176,24 @@ def onMousePress(app, mouseX, mouseY):
                 app.flags -= 1
             else:
                 app.tiles[row][col].covered = False
-                if app.tiles[row][col].surroundingMines == 0:
-                    floodfill(app, row, col)
+                for i in range(app.rows):
+                    floodfill(app)
                 if app.tiles[row][col].isMine == True:
                     app.gameStatus = 'lost'
             if gameIsWon(app):
                 app.gameStatus = 'won'
-
-def floodfill(app, row, col):
+    
+def floodfill(app):
+    for row in range(app.rows):
+        for col in range(app.cols):
+            if app.tiles[row][col].covered == False and app.tiles[row][col].surroundingMines == 0:
+                uncoverSurroundingMines(app, row, col)
+                
+def uncoverSurroundingMines(app, row, col):
     for i in range(-1, 2):
         for j in range(-1, 2):
             if row + i >= 0 and row + i < app.rows and col + j >= 0 and col + j < app.cols:
                 app.tiles[row+i][col+j].covered = False
-
 
 def gameIsWon(app):
     for row in range(app.rows):
