@@ -44,6 +44,9 @@ def generateTiles(app):
                         tiles[row+i][col+j].surroundingMines += 1
     return tiles
 
+def boardIsSolvable(tiles):
+    pass
+
 def redrawAll(app):
     if app.gameStatus == 'homePage':
         drawHomepage(app)
