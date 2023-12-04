@@ -11,4 +11,4 @@ No libraries need to be installed to run this project.
 
 If you press or hold 't' while playing, every tile (including mines) will be uncovered. This is for testing/development purposes. 
 
-Fonts: 
+No special fonts are used or need to be downloaded. 
