@@ -26,31 +26,22 @@ def onAppStart(app):
     app.flags = 0
     app.timer = 0
     app.stepsPerSecond = 1
+    app.testing = []
         
 def generateTiles(app):
+    app.testing = [[False for i in range(app.rows)] for j in range(app.cols)]
     tiles =  [[Tile(i, j) for i in range(app.rows)] for j in range(app.cols)]
     placedMines = 0
     while placedMines < app.mines:
         col = random.randint(0, app.cols-1)
         row = random.randint(0, app.rows-1)
-        tiles[row][col].isMine = True
-        placedMines += 1
-        if row - 1 >= 0:
-            tiles[row-1][col].surroundingMines += 1
-            if col - 1 >= 0:
-                tiles[row-1][col-1].surroundingMines += 1
-            if col + 1 < app.cols:
-                tiles[row-1][col+1].surroundingMines += 1
-        if row + 1 < app.rows:
-            tiles[row+1][col].surroundingMines += 1
-            if col - 1 >= 0:
-                tiles[row+1][col-1].surroundingMines += 1
-            if col + 1 < app.cols:
-                tiles[row+1][col+1].surroundingMines += 1
-        if col + 1 < app.cols:
-            tiles[row][col+1].surroundingMines += 1
-        if col - 1 >= 0:
-            tiles[row][col-1].surroundingMines += 1
+        if tiles[row][col].isMine == False:
+            tiles[row][col].isMine = True
+            placedMines += 1
+            for i in range(-1,2):
+                for j in range(-1,2):
+                    if row + i >= 0 and row + i < app.rows and col + j >= 0 and col + j < app.cols:
+                        tiles[row+i][col+j].surroundingMines += 1
     return tiles
 
 def redrawAll(app):
@@ -108,15 +99,14 @@ def drawCell(app, row, col, tile):
         color = 'black'
     else:
         color = None
-        if tile.isMine:
-            label = 'Mine'
-        else:
-            label = str(tile.surroundingMines)
-            if tile.surroundingMines == 0:
-                label = ''
+        label = str(tile.surroundingMines)
+        if tile.surroundingMines == 0 or tile.isMine:
+            label = ''
     drawRect(cellLeft, cellTop, cellWidth, cellHeight,
              fill=color, border='black',
              borderWidth=app.cellBorderWidth)
+    if tile.isMine and not tile.flagged:
+        drawCircle(cellLeft + cellWidth/2, cellTop + cellHeight/2, cellWidth/3)
     drawLabel(label, cellLeft + cellWidth/2, cellTop + cellHeight/2)
 
 def getCellLeftTop(app, row, col):
@@ -186,7 +176,7 @@ def onMousePress(app, mouseX, mouseY):
 def floodfill(app):
     for row in range(app.rows):
         for col in range(app.cols):
-            if app.tiles[row][col].covered == False and app.tiles[row][col].surroundingMines == 0:
+            if app.tiles[row][col].covered == False and app.tiles[row][col].isMine == False and app.tiles[row][col].surroundingMines == 0:
                 uncoverSurroundingMines(app, row, col)
                 
 def uncoverSurroundingMines(app, row, col):
@@ -213,10 +203,25 @@ def newGame(app):
 def onKeyPress(app, key):
     if key == 'f':
         app.FPressed = True
+    if key == 't':
+        for row in range(app.rows):
+            for col in range(app.cols):
+                app.testing[row][col] = app.tiles[row][col].covered
+                app.tiles[row][col].covered = False
 
 def onKeyRelease(app, key):
     if key == 'f':
         app.FPressed = False
+    if key == 't':
+        for row in range(app.rows):
+            for col in range(app.cols):
+                app.tiles[row][col].covered = app.testing[row][col]
+
+def onKeyHold(app, keys):
+    if 't' in keys:
+        for row in range(app.rows):
+            for col in range(app.cols):
+                app.tiles[row][col].covered = False
 
 def onStep(app):
     if app.gameStatus == 'playing':
