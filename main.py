@@ -179,7 +179,7 @@ def floodfill(app):
             if app.tiles[row][col].covered == False and app.tiles[row][col].isMine == False and app.tiles[row][col].surroundingMines == 0:
                 uncoverSurroundingMines(app, row, col)
                 
-df uncoverSurroundingMines(app, row, col):
+def uncoverSurroundingMines(app, row, col):
     for i in range(-1, 2):
         for j in range(-1, 2):
             if row + i >= 0 and row + i < app.rows and col + j >= 0 and col + j < app.cols:
